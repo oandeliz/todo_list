@@ -14,8 +14,7 @@ class DatabaseService {
   DatabaseService._constructor();
 
   Future<Database> get database async {
-    if (_db != null) return _db!;
-    _db = await getDatabase();
+    _db ??= await getDatabase();
     return _db!;
   }
 
@@ -24,11 +23,11 @@ class DatabaseService {
     final databasePath = join(databasaDirPath, "master_dv.db");
     final database =
         await openDatabase(databasePath, version: 1, onCreate: (db, version) {
-      db.execute(''''
-      CREATE TABLE _tasksTableName (
-        $_tasksIdColumnName INTEGER PRIMARY KEY,
+      db.execute('''
+      CREATE TABLE $_tasksTableName (
+        $_tasksIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
         $_tasksContentColumnName TEXT NOT NULL,
-        $_tasksStatusColumnName TEXT NOT NULL,
+        $_tasksStatusColumnName INTEGER DEFAULT 0
       )
       ''');
     });
@@ -40,8 +39,7 @@ class DatabaseService {
   ) async {
     final db = await database;
     await db.insert(_tasksTableName, {
-      _tasksContentColumnName: content,
-      _tasksStatusColumnName: 0,
+      _tasksContentColumnName: content
     });
   }
 
