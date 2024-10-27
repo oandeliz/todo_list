@@ -54,4 +54,15 @@ class DatabaseService {
             ))
         .toList();
   }
-}
+  void updateTaskStatus(int id, int status) async {
+    final db = await database;
+    await db.update(_tasksTableName, {
+    _tasksStatusColumnName:status
+    },
+      where: 'id = ?',
+      whereArgs: [
+        id,
+      ]
+    );
+  }
+  }

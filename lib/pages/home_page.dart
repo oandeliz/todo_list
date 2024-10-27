@@ -85,6 +85,15 @@ class _HomePageState extends State<HomePage> {
                   title: Text(
                     task.content,
                   ),
+                  trailing: Checkbox(value: task.status == 1,
+                    onChanged: (value) {
+                      _databaseService.updateTaskStatus(
+                        task.id,
+                        value == true ? 1 : 0,);
+                      setState(() {
+
+                      });
+                    },),
                 );
               });
         });
