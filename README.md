@@ -1,16 +1,14 @@
 # todo_list
 
-A new Flutter project.
+Hello, I'm Oscar Andeliz a developer in training.
 
-## Getting Started
+I decided to build this app call todo_list. 
+I wanted to learn more about data structure and how to work with SQL.
 
-This project is a starting point for a Flutter application.
+My goal with this app is to be able to handle data better.
+and to make sure that I have an app that has a CRUD database.
 
-A few resources to get you started if this is your first Flutter project:
+I will be using this YouTube tutorial to start (https://www.youtube.com/watch?v=pFctmsTDoa0&list=LL&index=17).
+Then I will use other resources, because I would like to have buttons to update and delete data from the db.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This project would be done in flutter.
