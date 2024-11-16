@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo_list/models/task.dart';
 
+
 class DatabaseService {
   static Database? _db;
   static final DatabaseService instance = DatabaseService._constructor();
@@ -18,11 +19,19 @@ class DatabaseService {
     return _db!;
   }
 
+  static const initScript = ['Statement 1', 'Statement 2']; // Initialization script split into seperate statements
+  static const migrationScripts = [
+    'script 1',
+    'script 2',
+    'script 3',
+  ];
+
   Future<Database> getDatabase() async {
     final databasaDirPath = await getDatabasesPath();
     final databasePath = join(databasaDirPath, "master_dv.db");
     final database =
-        await openDatabase(databasePath, version: 1, onCreate: (db, version) {
+        await openDatabase(databasePath, version: migrationScripts.length + 1, onCreate: (Database db, int version) async {
+          initScript.forEach((script) async => await db.execute(script));
       db.execute('''
       CREATE TABLE $_tasksTableName (
         $_tasksIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,6 +40,11 @@ class DatabaseService {
       )
       ''');
     });
+    onUpgrade: (Database db, int oldVersion, int newVersion) async {
+      for (var i = oldVersion - 1; i <= newVersion - 1; i++) {
+        await db.execute(migrationScripts[i]);
+      }
+    };
     return database;
   }
 
