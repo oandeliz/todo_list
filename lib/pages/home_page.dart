@@ -83,24 +83,22 @@ class _HomePageState extends State<HomePage> {
                 Task task = snapshot.data![index];
                 return ListTile(
                   onLongPress: () {
-                    _databaseService.deleteTask(
-                      task.id
-                    );
-                    setState(() {
-                    });
+                    _databaseService.deleteTask(task.id);
+                    setState(() {});
                   },
                   title: Text(
                     task.content,
                   ),
-                  trailing: Checkbox(value: task.status == 1,
+                  trailing: Checkbox(
+                    value: task.status == 1,
                     onChanged: (value) {
                       _databaseService.updateTaskStatus(
                         task.id,
-                        value == true ? 1 : 0,);
-                      setState(() {
-
-                      });
-                    },),
+                        value == true ? 1 : 0,
+                      );
+                      setState(() {});
+                    },
+                  ),
                 );
               });
         });
