@@ -2,15 +2,15 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo_list/models/task.dart';
 
-
 class DatabaseService {
   static Database? _db;
   static final DatabaseService instance = DatabaseService._constructor();
 
-  final String _tasksTableName = "tasks";
-  final String _tasksIdColumnName = "id";
-  final String _tasksContentColumnName = "content";
-  final String _tasksStatusColumnName = "status";
+  static final String _tasksTableName = "tasks";
+  static final String _tasksIdColumnName = "id";
+  static final String _tasksContentColumnName = "content";
+  static final String _tasksStatusColumnName = "status";
+  static final String _idEquals = '$_tasksIdColumnName = ?';
 
   DatabaseService._constructor();
 
@@ -19,42 +19,43 @@ class DatabaseService {
     return _db!;
   }
 
-  static const initScript = ['Statement 1', 'Statement 2']; // Initialization script split into seperate statements
-  static const migrationScripts = [
-    'script 1',
-    'script 2',
-    'script 3',
-  ];
-
-  Future<Database> getDatabase() async {
-    final databasaDirPath = await getDatabasesPath();
-    final databasePath = join(databasaDirPath, "master_dv.db");
-    final database =
-        await openDatabase(databasePath, version: migrationScripts.length + 1, onCreate: (Database db, int version) async {
-          initScript.forEach((script) async => await db.execute(script));
-      db.execute('''
+  static final createScripts = [
+    '''
       CREATE TABLE $_tasksTableName (
         $_tasksIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
         $_tasksContentColumnName TEXT NOT NULL,
         $_tasksStatusColumnName INTEGER DEFAULT 0
       )
-      ''');
-    });
-    onUpgrade: (Database db, int oldVersion, int newVersion) async {
-      for (var i = oldVersion - 1; i <= newVersion - 1; i++) {
-        await db.execute(migrationScripts[i]);
-      }
-    };
-    return database;
+    '''
+  ];
+
+  Future<Null> doCreate(Database db, int version) async {
+    for (var i = 0; i < createScripts.length; i++) {
+      await db.execute(createScripts[i]);
+    }
+  }
+
+  Future<Null> doUpgrade(Database db, int oldVersion, int newVersion) async {
+    for (var i = oldVersion - 1; i <= newVersion - 1; i++) {
+      await db.execute(migrationScripts[i]);
+    }
+  }
+
+  static final migrationScripts = [];
+
+  Future<Database> getDatabase() async {
+    final databasePath = join(await getDatabasesPath(), "master_dv.db");
+    return await openDatabase(databasePath,
+        onCreate: doCreate,
+        onUpgrade: doUpgrade,
+        version: migrationScripts.length + 1);
   }
 
   void addTask(
     String content,
   ) async {
     final db = await database;
-    await db.insert(_tasksTableName, {
-      _tasksContentColumnName: content
-    });
+    await db.insert(_tasksTableName, {_tasksContentColumnName: content});
   }
 
   Future<List<Task>> getTasks() async {
@@ -62,30 +63,22 @@ class DatabaseService {
     final data = await db.query(_tasksTableName);
     return data
         .map((e) => Task(
-              id: e["id"] as int,
-              status: e["status"] as int,
-              content: e["content"] as String,
+              id: e[_tasksIdColumnName] as int,
+              status: e[_tasksContentColumnName] as int,
+              content: e[_tasksStatusColumnName] as String,
             ))
         .toList();
   }
+
   void updateTaskStatus(int id, int status) async {
+    assert(status == 1 || status == 0);
     final db = await database;
-    await db.update(_tasksTableName, {
-    _tasksStatusColumnName:status
-    },
-      where: 'id = ?',
-      whereArgs: [
-        id,
-      ]
-    );
+    await db.update(_tasksTableName, {_tasksStatusColumnName: status},
+        where: _idEquals, whereArgs: [id]);
   }
+
   void deleteTask(int id) async {
     final db = await database;
-    await db.delete(_tasksTableName,
-        where: 'id = ?',
-        whereArgs: [
-          id,
-        ]
-    );
+    await db.delete(_tasksTableName, where: _idEquals, whereArgs: [id]);
   }
-  }
+}
